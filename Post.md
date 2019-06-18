@@ -1,4 +1,3 @@
-# Post
 - - - -
 title:console.tap
 published: false
@@ -6,7 +5,7 @@ description:
 tags: 
 - - - -
 
-# Why We Make Room For `console.log` 
+# Why (We) Make Room For `console.log` 
 
 ## Why are any of us here?
 ### To fix what ain't broke!
@@ -295,6 +294,8 @@ console.log( user )
 const userID = getUserId(JSON.parse( user ));
 ```
 
+And with `tap`:
+
 ```
 {% runkit
  
@@ -320,7 +321,7 @@ const userID = getUserId(
 ```
 <span></span><figcaption> 🛠 Move around `console.tap`. What do you get from `console.tap(JSON).parse`? </figcaption>
 
-And as for`pickAndFormatTransaction`, _that_ overachiever,  why don’t you give `tap` a try. 
+As for`pickAndFormatTransaction`, _that_ overachiever,  why don’t you give `tap` a try. 
 
 #### The Ktchn Snk
 
