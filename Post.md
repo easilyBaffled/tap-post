@@ -182,9 +182,27 @@ const pickAndFormatTransaction = ( {
 ```
 
 If yours is anything like mine, it's none too pretty. I suppose "pretty" is subjective but work with me here, it'll be worth it. 
-`pickAndFormatTransaction`, is trying really hard to squeeze every feature out of the latest and greatest from JavaScript. Here's something a little more established. 
 
-### Array.Chaining
+## `console.log -> undefined`
+You may have noticed that when you’ve run the RunKit examples above you see the `console.log` output and then `undefined`. That `undefined` is the result of `console.log(...)`. This is why debugging is cumbersome as we have to bend over backward and around `console.log` or rather `undefined`. I have yet to see a time when I need that `undefined`. We could save ourselves plenty of work if `console.log` returned the value it was logging instead of `undefined`.
+
+## `console.tap`
+
+I've created `console.tap` to be the logging function modern JS has been missing.
+```
+{% runkit %}
+console.tap = v => {
+    console.log( v )
+    return v
+};
+{% endrunkit %}
+```
+<span></span><figcaption><strong>Oo Aah</strong></figcaption><figcaption><sub>…wait, that's it?</sub></figcaption>
+
+First, yes I'm adding it to the global console object. That is my choice, I'm a mad man. Second, the function revolves around simplicity. It takes one value, logs _that_ value, and returns _that_ value. To the calling function, and the context around it, nothing happens. Which means there is no extra overhead or setup to debugging.
+
+### Using Tap 
+We'll return to `pickAndFormatTransaction` later. Instead here's something a little smaller.
 
 ```
 {% runkit
@@ -206,41 +224,75 @@ console.log(result);
 ```
 <span></span><figcaption>❓There is no bug here ( at least I don't think there is ) but where would you put the `console.log` if there was?</figcaption>
 
-Chaining a bunch of array functions together. `map`, `reduce`, and `filter` were some of the first indications of where ES6 and modern JS were heading. They are wonderfully succinct alternatives to the `for` and `while` loops. But they have the same issue as `pickAndFormatTransaction`. There's no room to fit a `console.log`. Again, a pinprick of a problem, but it's enough to ruin a good train of thought. And that's because `console.log` is one of the last things in JavaScript that _hasn’t_ been modernized. It's a remnant of an older JavaScript where everything was done in blocks like the `if` statement rather than in line like the ternary operator.
+`map`, `reduce`, and `filter` were some of the first indications of where ES6 and modern JS were heading. When you chain them together you get the same issue as before. There's no room to fit a `console.log`. You have to rip the chain apart to see what is going on in the middle of it.
 
-## `console.log -> undefined`
-You may have noticed that when you’ve run the RunKit examples above you see the `console.log` output and then `undefined`. That `undefined` is the result of `console.log(...)`. This is why debugging is cumbersome as we have to bend over backward and around `console.log` or rather `undefined`. I have yet to see a time when I need that `undefined`. We could save ourselves plenty of work if `console.log` returned the value it was logging instead of `undefined`.
+```js
+const filtered = ['1', '2', 'zero' , 3, 4, 5]
+    .map(parseNumbers)
+    .filter(removeEvens);
+console.log( filtered );
 
-## `console.tap`
+const res = filtered.reduce(( acc, v ) => Math.max(acc, v));
+```
 
-I've created `console.tap` to be the logging function modern JS has been missing.
-
+`console.tap` on the other hand can fit just about anywhere.
 
 ```
-{% runkit %}
-console.tap = v => {
-    console.log( v )
-    return v
-};
+{% runkit
+ 
+function parseNumbers(num) {
+    return Number(num) || 0;
+}
+function removeEvens(num) {
+    return num % 2;
+}
+%}
+const result = console.tap(['1', '2', 'zero' , 3, 4, 5]
+    .map(parseNumbers)
+    .filter(removeEvens)) // <- this parens closes `tap`
+    .reduce(( acc, v ) => Math.max(acc, v));
+    
+console.log(result);
 {% endrunkit %}
 ```
-<span></span><figcaption><strong>Oo Aah</strong></figcaption><figcaption><sub>…wait, that's it?</sub></figcaption>
+<span></span><figcaption>🛠 move around <strong>just</strong> the closing `)` for `console.tap` to see each result</figcaption>
 
-First, yes I'm adding it to the global console object. That is my choice, I'm a mad man. Second, the function revolves around simplicity. It takes one value, logs _that_ value, and returns _that_ value. To the calling function, and the context around it, nothing happens. Which means there is no extra overhead or setup to debugging.
-
-
-### Comparisons 
-
+`console.tap`  could have also been used on each part of the chain since each function produces an array.
 
 #### Function Composition
+
+This example doesn't even need any modern features and it still suffers from the same problem.
+
+```
+{% runkit
+ 
+function getUserId( user ) {
+	return user.id
+}
+
+const storage = {
+    store: { user: '{"id":1}' },
+    getItem( name ) {
+        return this.store[name]
+    }
+}
+
+%}
+
+var userID = getUserId(
+	JSON.parse(storage.getItem( 'user' ))
+);
+{% endrunkit %}
+```
+<span></span><figcaption> ❓ Anyone else excited for the <a href="https://github.com/tc39/proposal-pipeline-operator"><code>|><\code>  operator</a>?</figcaption>
+
+If and when `JSON.parse` erupts with `Unexpected token o in JSON at position 1`, you've got to yank out `storage.getItem` to realize you accidentally stored `[object Object]` . 
 
 ```js
 const user = storage.getItem( 'user' );
 console.log( user )
 
-const userID = getUserId(
-	JSON.parse( user )
-);
+const userID = getUserId(JSON.parse( user ));
 ```
 
 ```
@@ -267,29 +319,6 @@ const userID = getUserId(
 {% endrunkit %}
 ```
 <span></span><figcaption> 🛠 Move around `console.tap`. What do you get from `console.tap(JSON).parse`? </figcaption>
-
-#### Chaining
-
-```js
-const filtered = arr
-        .map( parseNumbers )
-        .filter( removeOdds );
-console.log( filtered );
-
-const res = filtered.reduce( average );
-```
-
-```
-{% runkit %}
-const result = console.tap(arr
-	.map(parseNumbers)
-	.filter(removeOdds)) // <- this parens closes `tap`
-	.reduce(average);
-{% endrunkit %}
-```
-<span></span><figcaption>🛠 move around <strong>just</strong> the closing `)` for `console.tap` to see each result</figcaption>
-
-`console.tap`  could have also been used on each part of the chain since each function produces an array.
 
 And as for`pickAndFormatTransaction`, _that_ overachiever,  why don’t you give `tap` a try. 
 
