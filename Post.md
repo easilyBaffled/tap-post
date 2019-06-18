@@ -5,7 +5,7 @@ description:
 tags: 
 - - - -
 
-# Why (We) Make Room For `console.log` 
+# Why (We) Make Room For `console.log`? 
 
 ## Why are any of us here?
 ### To fix what ain't broke!
@@ -246,9 +246,7 @@ console.log(result);
 
 `console.tap`  could have also been used on each part of the chain since each function produces an array.
 
-#### Function Composition
-
-This example doesn't even need any modern features and it still suffers from the same problem.
+This next example doesn't even need any modern features and it still suffers from the same problem.
 
 {% runkit
  
@@ -340,7 +338,7 @@ console.log(pickAndFormatTransaction(transactionData));
 
 Without adding anything but  `console.tap`  you can log the whole returning object, or to anything involved in amount and moment. For `description` you will still have to expand the shorthand to  `description: description`. 
 
-## `Have Fun!`
+## Have Fun!
 
 I have created a module for `console.tap` that takes care of some extra details but the function declaration is so small you can write it yourself when you need it.
 
@@ -355,3 +353,8 @@ console.tap = v => (console.log(v), v);
 {% endrunkit %}
 
 [![NPM](https://nodei.co/npm/console.tap.png)](https://nodei.co/npm/console.tap/)
+
+```
+console.tap = v => (console.log(v), v)
+console.tap.fn = fn => (...args) => console.tap(fun(...args))
+```
