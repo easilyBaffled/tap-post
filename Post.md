@@ -184,13 +184,15 @@ You may have noticed that when you’ve run the RunKit examples above you see th
 I've created `console.tap` to be the logging function modern JS has been missing.
 {% runkit %}
 console.tap = v => {
-    console.log( v )
-    return v
+    console.log( v );
+    return v;
 };
 {% endrunkit %}
 <span></span><figcaption><strong>Oo Aah</strong></figcaption><figcaption><sub>…wait, that's it?</sub></figcaption>
 
-First, yes I'm adding it to the global console object. That is my choice, I'm a mad man. Second, the function revolves around simplicity. It takes one value, logs _that_ value, and returns _that_ value. To the calling function, and the context around it, nothing happens. Which means there is no extra overhead or setup to debugging.
+First, yes I'm adding it to the global console object. That is my choice, I'm a mad man. Second, the function revolves around simplicity. It takes one* value, logs _that_ value, and returns _that_ value. To the calling function, and the context around it, nothing happens. Which means there is no extra overhead or setup to debugging.
+
+<figcaption>*In reality you can pass additional arguments into <code>tap</code>. They'll be logged but not returned</figcaption>
 
 ### Using Tap 
 We'll return to `pickAndFormatTransaction` later. Instead here's something a little smaller.
@@ -274,13 +276,13 @@ If and when `JSON.parse` erupts with `Unexpected token o in JSON at position 1`,
 {% runkit
  
 function getUserId( user ) {
-	return user.id
+	return user.id;
 }
 
 const storage = {
     store: { user: '{"id":1}' },
     getItem( name ) {
-        return this.store[name]
+        return this.store[name];
     }
 }
 
